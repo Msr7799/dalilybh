@@ -1,18 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
 function getGoogleMapsKey() {
-  return (
-    process.env.GOOGLE_MAPS_API ||
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
-    process.env.GOOGLE_MAPS_API_KEY
-  );
+  return process.env.GOOGLE_MAPS_API_KEY;
 }
 
 export async function GET(request: NextRequest) {
   const key = getGoogleMapsKey();
   if (!key) {
     return NextResponse.json(
-      { error: "Missing GOOGLE_MAPS_API or NEXT_PUBLIC_GOOGLE_MAPS_API_KEY" },
+      { error: "Missing GOOGLE_MAPS_API_KEY" },
       { status: 500 },
     );
   }

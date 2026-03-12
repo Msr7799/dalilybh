@@ -1,18 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
 function getGoogleMapsKey() {
-  return (
-    process.env.GOOGLE_MAPS_API ||
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
-    process.env.GOOGLE_MAPS_API_KEY
-  );
+  return process.env.GOOGLE_MAPS_API_KEY;
 }
 
 export async function GET(request: NextRequest) {
   const key = getGoogleMapsKey();
   if (!key) {
     return NextResponse.json(
-      { error: "Missing GOOGLE_MAPS_API or NEXT_PUBLIC_GOOGLE_MAPS_API_KEY" },
+      { error: "Missing GOOGLE_MAPS_API_KEY" },
       { status: 500 },
     );
   }
@@ -27,8 +23,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing name" }, { status: 400 });
   }
 
-  const locationBias =
-    lat && lng ? `circle:2000@${lat},${lng}` : undefined;
+  const locationBias = lat && lng ? `circle:2000@${lat},${lng}` : undefined;
 
   const findUrl = new URL(
     "https://maps.googleapis.com/maps/api/place/findplacefromtext/json",
@@ -52,8 +47,7 @@ export async function GET(request: NextRequest) {
   }
 
   const findJson: any = await findRes.json();
-  const placeId: string | undefined =
-    findJson?.candidates?.[0]?.place_id;
+  const placeId: string | undefined = findJson?.candidates?.[0]?.place_id;
 
   if (!placeId) {
     return NextResponse.json(
@@ -123,7 +117,10 @@ export async function GET(request: NextRequest) {
     phoneNumber: r?.formatted_phone_number ?? null,
     websiteUri: r?.website ?? null,
     photoUrl,
-    openNow: typeof r?.opening_hours?.open_now === "boolean" ? r.opening_hours.open_now : null,
+    openNow:
+      typeof r?.opening_hours?.open_now === "boolean"
+        ? r.opening_hours.open_now
+        : null,
     weekdayText: Array.isArray(r?.opening_hours?.weekday_text)
       ? r.opening_hours.weekday_text
       : null,
