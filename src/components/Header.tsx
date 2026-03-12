@@ -18,7 +18,7 @@ export default function Header({
 }: HeaderProps) {
   const { lang, toggleLanguage, t, isRTL } = useLanguage();
   const { theme, toggleTheme } = useTheme();
-  const { user, loading, signInWithGoogle, logout } = useAuth();
+  const { user, loading, error, signInWithGoogle, logout } = useAuth();
 
   return (
     <header className="header">
@@ -55,6 +55,21 @@ export default function Header({
       </div>
 
       <div className="header-actions">
+        {error && (
+          <span
+            style={{
+              fontSize: 11,
+              opacity: 0.9,
+              maxWidth: 260,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+            title={error}
+          >
+            {error}
+          </span>
+        )}
         <button
           className="btn-icon"
           onClick={user ? logout : signInWithGoogle}
