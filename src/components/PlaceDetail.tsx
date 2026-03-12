@@ -1,8 +1,9 @@
 "use client";
 
 import { useLanguage } from "@/context/LanguageContext";
-import { Place } from "@/lib/types";
-import { useEffect, useRef } from "react";
+import { GooglePlaceDetail, Place } from "@/lib/types";
+import Image from "next/image";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface PlaceDetailProps {
   place: Place;
@@ -12,6 +13,15 @@ interface PlaceDetailProps {
 export default function PlaceDetail({ place, onClose }: PlaceDetailProps) {
   const { lang, t } = useLanguage();
   const overlayRef = useRef<HTMLDivElement>(null);
+  const [googleDetail, setGoogleDetail] = useState<GooglePlaceDetail | null>(
+    null,
+  );
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  const queryName = useMemo(() => {
+    const n = (lang === "ar" ? place.nameAr : place.nameEn) || "";
+    return n === "—" ? "" : n;
+  }, [lang, place.nameAr, place.nameEn]);
 
   const name = lang === "ar" ? place.nameAr : place.nameEn;
   const secondaryName = lang === "ar" ? place.nameEn : place.nameAr;
@@ -27,6 +37,38 @@ export default function PlaceDetail({ place, onClose }: PlaceDetailProps) {
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [onClose]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      if (!queryName) return;
+      if (!place.latitude || !place.longitude) return;
+
+      setGoogleLoading(true);
+      try {
+        const url = new URL("/api/google/enrich", window.location.origin);
+        url.searchParams.set("name", queryName);
+        url.searchParams.set("lat", String(place.latitude));
+        url.searchParams.set("lng", String(place.longitude));
+        url.searchParams.set("lang", lang);
+
+        const res = await fetch(url.toString());
+        if (!res.ok) return;
+        const data = (await res.json()) as GooglePlaceDetail;
+        if (!cancelled) setGoogleDetail(data);
+      } finally {
+        if (!cancelled) setGoogleLoading(false);
+      }
+    }
+
+    setGoogleDetail(null);
+    run();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [lang, place.latitude, place.longitude, queryName]);
 
   const directionsUrl =
     place.latitude && place.longitude
@@ -53,6 +95,19 @@ export default function PlaceDetail({ place, onClose }: PlaceDetailProps) {
         </div>
 
         <div className="modal-body">
+          {googleDetail?.photoUrl && (
+            <div className="modal-map" style={{ height: 220 }}>
+              <Image
+                src={googleDetail.photoUrl}
+                alt={googleDetail.name || name}
+                fill
+                sizes="(max-width: 768px) 100vw, 600px"
+                style={{ objectFit: "cover", borderRadius: 16 }}
+                priority
+              />
+            </div>
+          )}
+
           <div className="detail-grid">
             <div className="detail-item">
               <div className="detail-label">{t("type")}</div>
@@ -77,6 +132,64 @@ export default function PlaceDetail({ place, onClose }: PlaceDetailProps) {
                   {place.latitude.toFixed(6)}, {place.longitude.toFixed(6)}
                 </div>
               </div>
+            )}
+
+            {(googleLoading || googleDetail) && (
+              <>
+                <div className="detail-item">
+                  <div className="detail-label">Google</div>
+                  <div className="detail-value">
+                    {googleLoading
+                      ? t("loading")
+                      : googleDetail?.placeId || "—"}
+                  </div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">Rating</div>
+                  <div className="detail-value">
+                    {googleLoading
+                      ? "—"
+                      : googleDetail?.rating != null
+                        ? `${googleDetail.rating} (${googleDetail.userRatingsTotal ?? 0})`
+                        : "—"}
+                  </div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">Phone</div>
+                  <div className="detail-value">
+                    {googleLoading ? "—" : googleDetail?.phoneNumber || "—"}
+                  </div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">Open now</div>
+                  <div className="detail-value">
+                    {googleLoading
+                      ? "—"
+                      : googleDetail?.openNow == null
+                        ? "—"
+                        : googleDetail.openNow
+                          ? "Yes"
+                          : "No"}
+                  </div>
+                </div>
+                <div className="detail-item full">
+                  <div className="detail-label">Website</div>
+                  <div className="detail-value">
+                    {googleLoading || !googleDetail?.websiteUri ? (
+                      "—"
+                    ) : (
+                      <a
+                        href={googleDetail.websiteUri}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="footer-link"
+                      >
+                        {googleDetail.websiteUri}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </>
             )}
           </div>
 

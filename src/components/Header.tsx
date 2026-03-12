@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useTheme } from "@/context/ThemeContext";
 import Image from "next/image";
@@ -17,6 +18,7 @@ export default function Header({
 }: HeaderProps) {
   const { lang, toggleLanguage, t, isRTL } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const { user, loading, signInWithGoogle, logout } = useAuth();
 
   return (
     <header className="header">
@@ -53,6 +55,29 @@ export default function Header({
       </div>
 
       <div className="header-actions">
+        <button
+          className="btn-icon"
+          onClick={user ? logout : signInWithGoogle}
+          disabled={loading}
+          aria-label={user ? "Sign out" : "Sign in with Google"}
+          title={user ? "Sign out" : "Sign in with Google"}
+        >
+          {user ? (
+            user.photoURL ? (
+              <Image
+                src={user.photoURL}
+                alt={user.displayName || "User"}
+                width={20}
+                height={20}
+                style={{ borderRadius: 999, objectFit: "cover" }}
+              />
+            ) : (
+              "�"
+            )
+          ) : (
+            "G"
+          )}
+        </button>
         <button
           className="btn-icon"
           onClick={toggleTheme}

@@ -16,14 +16,14 @@ export interface ApiResponse {
 export interface PlaceRecord {
   n?: number;
   name?: string;
-  l_sm?: string;        // Arabic name
+  l_sm?: string; // Arabic name
   type?: string;
-  ltsnyf?: string;      // Arabic type
+  ltsnyf?: string; // Arabic type
   subtype?: string;
   ltsnyf_lfr_y?: string; // Arabic subtype
   block?: number;
   governorate?: string;
-  lmhfzt?: string;      // Arabic governorate
+  lmhfzt?: string; // Arabic governorate
   x_longitude?: number;
   y_latitude?: number;
   location?: {
@@ -47,6 +47,19 @@ export interface Place {
   latitude: number | null;
   longitude: number | null;
   datasetId: string;
+}
+
+export interface GooglePlaceDetail {
+  placeId: string;
+  name: string | null;
+  address: string | null;
+  rating: number | null;
+  userRatingsTotal: number | null;
+  phoneNumber: string | null;
+  websiteUri: string | null;
+  photoUrl: string | null;
+  openNow: boolean | null;
+  weekdayText: string[] | null;
 }
 
 // ========== Weather Types ==========
@@ -76,7 +89,7 @@ export interface WeatherResponse {
 }
 
 // ========== App State Types ==========
-export type Language = 'en' | 'ar';
+export type Language = "en" | "ar";
 
 export interface CategoryGroup {
   key: string;

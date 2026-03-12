@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
+import LoadingWrapper from "@/components/LoadingWrapper";
+import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { ThemeProvider } from "@/context/ThemeContext";
-import LoadingWrapper from "@/components/LoadingWrapper";
 import "./globals.css";
 
 export default function ContentLayout({
@@ -12,9 +13,11 @@ export default function ContentLayout({
 }>) {
   return (
     <ThemeProvider>
-      <LanguageProvider>
-        <LoadingWrapper>{children}</LoadingWrapper>
-      </LanguageProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <LoadingWrapper>{children}</LoadingWrapper>
+        </LanguageProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
