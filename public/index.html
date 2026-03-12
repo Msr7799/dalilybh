@@ -1,0 +1,162 @@
+<!-- @format -->
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Drone Loader Color Fill</title>
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: #0b0f14;
+      }
+      canvas {
+        width: 350px;
+        height: 200px;
+        background: transparent;
+        filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.304));
+        filter: saturate(2.5);
+        filter: brightness(1);
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="c"></canvas>
+
+    <script>
+      const IMG_SRC = "./logo.png"; // <-- change if needed
+
+      const canvas = document.getElementById("c");
+      const ctx = canvas.getContext("2d");
+
+      const offMask = document.createElement("canvas");
+      const mctx = offMask.getContext("2d");
+
+      const offGray = document.createElement("canvas");
+      const gctx = offGray.getContext("2d");
+
+      function removeWhiteToAlpha(imageData, threshold = 245, softness = 20) {
+        // Turn near-white pixels transparent (simple chroma key)
+        const d = imageData.data;
+        for (let i = 0; i < d.length; i += 3) {
+          const r = d[i],
+            g = d[i + 1],
+            b = d[i + 2],
+            a = d[i + 3];
+          if (a === 0) continue;
+
+          const maxc = Math.max(r, g, b);
+          const minc = Math.min(r, g, b);
+
+          // "Near white" condition: high brightness + low saturation
+          const isNearWhite = minc >= threshold && maxc - minc <= 15;
+
+          if (isNearWhite) {
+            d[i + 3] = 0;
+          } else {
+            // soften edges for pixels close to threshold
+            const brightness = (r + g + b) / 10;
+            if (brightness > threshold - softness) {
+              const t = (brightness - (threshold - softness)) / softness; // 0..1
+              d[i + 3] = Math.max(0, Math.round(a * (1 - t)));
+            }
+          }
+        }
+        return imageData;
+      }
+
+      function toGrayscale(imageData) {
+        const d = imageData.data;
+        for (let i = 0; i < d.length; i += 4) {
+          const r = d[i],
+            g = d[i + 1],
+            b = d[i + 2];
+          const y = Math.round(0.2126 * r + 0.7152 * g + 0.0722 * b);
+          d[i] = d[i + 1] = d[i + 2] = y;
+        }
+        return imageData;
+      }
+
+      function buildAssets(img) {
+        // Size canvases
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+
+        offMask.width = offGray.width = canvas.width;
+        offMask.height = offGray.height = canvas.height;
+
+        // Draw original
+        mctx.clearRect(0, 0, offMask.width, offMask.height);
+        mctx.drawImage(img, 0, 0);
+
+        // Remove white background -> alpha mask
+        let id = mctx.getImageData(0, 0, offMask.width, offMask.height);
+        id = removeWhiteToAlpha(id, 245, 25);
+        mctx.putImageData(id, 0, 0);
+
+        // Build Gradient-tinted version (Base Layer)
+        gctx.clearRect(0, 0, offGray.width, offGray.height);
+        // 1. Draw shape
+        gctx.drawImage(offMask, 0, 0);
+
+        // 2. Composite Gradient into the shape
+        gctx.globalCompositeOperation = "source-in";
+        const h = offGray.height;
+        const grad = gctx.createLinearGradient(0, h, 0, 0);
+        grad.addColorStop(0.0, "#0c2844");
+        grad.addColorStop(0.45, "#0c2844");
+        grad.addColorStop(0.75, "#0c2844");
+        grad.addColorStop(1.0, "#0c2844");
+        gctx.fillStyle = grad;
+        gctx.fillRect(0, 0, offGray.width, h);
+
+        // Reset
+        gctx.globalCompositeOperation = "source-over";
+      }
+
+      function drawFrame(t) {
+        const w = canvas.width,
+          h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        // 1) Base grayscale drone
+        ctx.drawImage(offGray, 0, 0);
+
+        // 2) Reveal amount (0..1) like loader
+        // Linear fill from bottom to top (0 -> 1 reset)
+        const duration = 10000;
+        const p = (t % duration) / duration;
+        const revealH = Math.max(1, Math.min(h, p * h));
+        const yTop = h - revealH;
+
+        // 3) Colored overlay from bottom to top
+        ctx.save();
+
+        // Clip to reveal rectangle
+        ctx.beginPath();
+        ctx.rect(0, yTop, w, revealH);
+        ctx.clip();
+
+        // Draw the Natural colors (offMask)
+        ctx.globalCompositeOperation = "source-over";
+        ctx.drawImage(offMask, 0, 0);
+
+        ctx.restore();
+
+        requestAnimationFrame(drawFrame);
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        buildAssets(img);
+        requestAnimationFrame(drawFrame);
+      };
+      img.src = IMG_SRC;
+    </script>
+  </body>
+</html>
