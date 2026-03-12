@@ -30,6 +30,122 @@ type ActiveTab = "home" | "explore" | "map";
 export default function HomePage() {
   const { lang, t, isRTL } = useLanguage();
 
+  const subtypeArOverrides = useMemo(() => {
+    return {
+      Governorate: "محافظة",
+      "Government organizations": "منظمات حكومية",
+      Ministries: "وزارات",
+      "Other offices": "مكاتب أخرى",
+      "Postal offices": "مكاتب البريد",
+      Embassies: "سفارات",
+      "United nations": "الأمم المتحدة",
+      "Royal offices": "مكاتب ملكية",
+      "Police training": "تدريب الشرطة",
+      Hospitals: "مستشفيات",
+      "Health centers": "مراكز صحية",
+      "Medical center": "مركز طبي",
+      Laboratory: "مختبر",
+      "Dental clinic": "عيادة أسنان",
+      "Private clinics": "عيادات خاصة",
+      Pharmacies: "صيدليات",
+      Opticians: "نظارات",
+      "Physiotherapy center": "مركز علاج طبيعي",
+      "Radiology center": "مركز أشعة",
+      "Alternative medicine center": "مركز طب بديل",
+      "Medical equipment": "معدات طبية",
+      "Dental laboratory": "مختبر أسنان",
+      "Veterinary centers": "مراكز بيطرية",
+      "Specialized clinic": "عيادة متخصصة",
+      Bakery: "مخبز",
+      "Bahraini sweet": "حلويات بحرينية",
+      "Auto spare parts": "قطع غيار سيارات",
+      "Cold stores": "مخازن تبريد",
+      "Car showrooms": "معارض سيارات",
+      Bookshops: "مكتبات",
+      "Electrical shops": "محلات كهربائيات",
+      "Dvd shops": "محلات أقراص",
+      "Cosmetic shops": "محلات تجميل",
+      "Fashion shops": "محلات أزياء",
+      "Electronic shops": "محلات إلكترونيات",
+      "Furniture shops": "محلات أثاث",
+      "Flowers and chocolate shops": "محلات ورد وشوكولاتة",
+      Handicraft: "حرف يدوية",
+      "Gift shops": "محلات هدايا",
+      "Garment shops": "محلات ملابس",
+      Malls: "مجمعات",
+      Jewelers: "مجوهرات",
+      Hypermarkets: "هايبرماركت",
+      Perfumes: "عطور",
+      "Other shops": "متاجر أخرى",
+      "Optical shops": "محلات نظارات",
+      Stationery: "قرطاسية",
+      Sports: "رياضة",
+      Souqs: "أسواق",
+      Shoes: "أحذية",
+      Tailoring: "خياطة",
+      "Sweets and nuts shops": "محلات حلويات ومكسرات",
+      Supermarket: "سوبرماركت",
+      "Toy shops": "محلات ألعاب",
+      "Societies and associations": "جمعيات وأندية",
+      "Islamic associations": "جمعيات إسلامية",
+      "Women associations": "جمعيات نسائية",
+      "Welfare associations": "جمعيات خيرية",
+      "Community centers": "مراكز اجتماعية",
+      "Government community centers": "مراكز حكومية",
+      "Rehabilitation center": "مركز تأهيل",
+      "Ngo support centers": "مراكز دعم",
+      "Welfare center": "مركز رعاية",
+      "Other clubs": "نوادي أخرى",
+      Gymnasium: "صالة رياضية",
+      "Billiards and snooker": "بلياردو وسنوكر",
+      "Sport facilities": "منشآت رياضية",
+      "Private clubs": "نوادي خاصة",
+      "Padel clubs": "نوادي بادل",
+      "Sports club": "نادي رياضي",
+      "Sports centers": "مراكز رياضية",
+      "Sports association": "اتحاد رياضي",
+      "Youth centers": "مراكز الشباب",
+      "Other company": "شركة أخرى",
+      "Insurance company": "شركة تأمين",
+      "Real estate agent": "وسيط عقاري",
+      "Electrical construction": "مقاولات كهربائية",
+      "Construction office": "مكتب مقاولات",
+      "Exchange and broker": "صرافة ووساطة",
+      "Commercial banks": "بنوك تجارية",
+      Atm: "صراف آلي",
+      Others: "أخرى",
+      "Investment services": "خدمات استثمار",
+      "Petrol stations": "محطات بترول",
+      "Police stations": "مراكز شرطة",
+      "Fire stations": "مراكز إطفاء",
+      Mosques: "مساجد",
+      "Other telecom": "اتصالات أخرى",
+      Newspaper: "صحف",
+      Magazine: "مجلات",
+      "Printing press": "مطبعة",
+      "Industrial complexes": "مجمعات صناعية",
+      "Industrial areas": "مناطق صناعية",
+      "Car parking": "مواقف سيارات",
+      "Beauty salons": "صالونات تجميل",
+      "Airport services": "خدمات المطار",
+      "Community halls": "قاعات اجتماعية",
+      "Car services": "خدمات سيارات",
+      "Events galleries": "صالات فعاليات",
+      "Computer services": "خدمات كمبيوتر",
+      "Hajj and umrah services": "خدمات حج وعمرة",
+      "Gas distributors": "موزعو غاز",
+      "Other services": "خدمات أخرى",
+      "Laundry services": "مغاسل",
+      "Water desalination": "تحلية مياه",
+      "Vehicle inspection": "فحص مركبات",
+      Cemeteries: "مقابر",
+      Residential: "سكني",
+      Commercial: "تجاري",
+      Apartments: "شقق",
+      "Residential compounds": "مجمعات سكنية",
+    } as Record<string, string>;
+  }, []);
+
   // State
   const [activeTab, setActiveTab] = useState<ActiveTab>("home");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
@@ -57,20 +173,27 @@ export default function HomePage() {
   const isDarkMode = theme === "dark";
 
   // Extract subtypes from loaded places
-  const extractSubtypes = useCallback((datasetId: string, places: Place[]) => {
-    const map = new Map<string, string>();
-    places.forEach((p) => {
-      if (p.subtypeEn && p.subtypeEn !== "—") {
-        map.set(
-          p.subtypeEn,
-          p.subtypeAr && p.subtypeAr !== "—" ? p.subtypeAr : p.subtypeEn,
-        );
-      }
-    });
-    const subtypes = Array.from(map.entries()).map(([en, ar]) => ({ en, ar }));
-    subtypes.sort((a, b) => a.en.localeCompare(b.en));
-    setDatasetSubtypes((prev) => new Map(prev).set(datasetId, subtypes));
-  }, []);
+  const extractSubtypes = useCallback(
+    (datasetId: string, places: Place[]) => {
+      const map = new Map<string, string>();
+      places.forEach((p) => {
+        if (p.subtypeEn && p.subtypeEn !== "—") {
+          const arFallback =
+            p.subtypeAr && p.subtypeAr !== "—"
+              ? p.subtypeAr
+              : subtypeArOverrides[p.subtypeEn] || p.subtypeEn;
+          map.set(p.subtypeEn, arFallback);
+        }
+      });
+      const subtypes = Array.from(map.entries()).map(([en, ar]) => ({
+        en,
+        ar,
+      }));
+      subtypes.sort((a, b) => a.en.localeCompare(b.en));
+      setDatasetSubtypes((prev) => new Map(prev).set(datasetId, subtypes));
+    },
+    [subtypeArOverrides],
+  );
 
   // Toggle subtype
   const toggleSubtype = useCallback((datasetId: string, subtypeEn: string) => {
@@ -674,7 +797,21 @@ export default function HomePage() {
             )}
 
             {/* Content */}
-            {selectedDatasets.size === 0 ? (
+            {viewMode === "map" || activeTab === "map" ? (
+              <MapView
+                places={mapPlaces}
+                onSelectPlace={setSelectedPlace}
+                selectedPlace={selectedPlace}
+                selectedDatasets={selectedDatasets}
+                loadingDatasets={loadingDatasets}
+                onToggleDataset={toggleDataset}
+                onSelectAll={selectAll}
+                onDeselectAll={deselectAll}
+                datasetSubtypes={datasetSubtypes}
+                selectedSubtypes={selectedSubtypes}
+                onToggleSubtype={toggleSubtype}
+              />
+            ) : selectedDatasets.size === 0 ? (
               <div className="empty-state">
                 <div className="empty-state-icon">📂</div>
                 <h3 className="empty-state-title">
@@ -693,12 +830,6 @@ export default function HomePage() {
                 <div className="dataset-loading dataset-loading-lg" />
                 <h3 className="empty-state-title">{t("loading")}</h3>
               </div>
-            ) : viewMode === "map" || activeTab === "map" ? (
-              <MapView
-                places={mapPlaces}
-                onSelectPlace={setSelectedPlace}
-                selectedPlace={selectedPlace}
-              />
             ) : filteredPlaces.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-state-icon">🔍</div>

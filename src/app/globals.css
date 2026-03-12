@@ -1265,6 +1265,55 @@ button {
   position: relative;
 }
 
+.map-container.fullscreen {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  width: 100vw;
+  border-radius: 0;
+  z-index: 9998;
+}
+
+.map-overlay-panel {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 1100;
+  width: min(420px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--surface-border);
+  background: var(--map-control-bg);
+  backdrop-filter: blur(14px);
+  padding: 12px;
+}
+
+[dir="rtl"] .map-overlay-panel {
+  left: auto;
+  right: 16px;
+}
+
+.map-overlay-title {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.map-filter-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.map-filter-row .btn-small {
+  flex: 1;
+}
+
+.modal-map.modal-photo {
+  height: 220px;
+}
+
 .map-canvas {
   width: 100%;
   height: 100%;

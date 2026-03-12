@@ -1,5 +1,6 @@
 "use client";
 
+import { useFavorites } from "@/context/FavoritesContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { GooglePlaceDetail, Place } from "@/lib/types";
 import Image from "next/image";
@@ -12,6 +13,7 @@ interface PlaceDetailProps {
 
 export default function PlaceDetail({ place, onClose }: PlaceDetailProps) {
   const { lang, t } = useLanguage();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const overlayRef = useRef<HTMLDivElement>(null);
   const [googleDetail, setGoogleDetail] = useState<GooglePlaceDetail | null>(
     null,
@@ -89,14 +91,24 @@ export default function PlaceDetail({ place, onClose }: PlaceDetailProps) {
               <p className="modal-subtitle">{secondaryName}</p>
             )}
           </div>
-          <button className="modal-close" onClick={onClose}>
-            ✕
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              className="modal-close"
+              onClick={() => toggleFavorite(place.id)}
+              aria-label={isFavorite(place.id) ? "Unfavorite" : "Favorite"}
+              title={isFavorite(place.id) ? "Unfavorite" : "Favorite"}
+            >
+              {isFavorite(place.id) ? "⭐" : "☆"}
+            </button>
+            <button className="modal-close" onClick={onClose}>
+              ✕
+            </button>
+          </div>
         </div>
 
         <div className="modal-body">
           {googleDetail?.photoUrl && (
-            <div className="modal-map" style={{ height: 220 }}>
+            <div className="modal-map modal-photo">
               <Image
                 src={googleDetail.photoUrl}
                 alt={googleDetail.name || name}

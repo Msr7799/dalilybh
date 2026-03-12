@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import { useLanguage } from '@/context/LanguageContext';
-import { Place } from '@/lib/types';
+import { useFavorites } from "@/context/FavoritesContext";
+import { useLanguage } from "@/context/LanguageContext";
+import { Place } from "@/lib/types";
 
 interface PlaceCardProps {
   place: Place;
@@ -9,37 +10,41 @@ interface PlaceCardProps {
   onViewOnMap: (place: Place) => void;
 }
 
-export default function PlaceCard({ place, onViewDetails, onViewOnMap }: PlaceCardProps) {
+export default function PlaceCard({
+  place,
+  onViewDetails,
+  onViewOnMap,
+}: PlaceCardProps) {
   const { lang, t } = useLanguage();
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const fav = isFavorite(place.id);
 
-  const name = lang === 'ar' ? place.nameAr : place.nameEn;
-  const secondaryName = lang === 'ar' ? place.nameEn : place.nameAr;
-  const type = lang === 'ar' ? place.typeAr : place.typeEn;
-  const subtype = lang === 'ar' ? place.subtypeAr : place.subtypeEn;
-  const governorate = lang === 'ar' ? place.governorateAr : place.governorateEn;
+  const name = lang === "ar" ? place.nameAr : place.nameEn;
+  const secondaryName = lang === "ar" ? place.nameEn : place.nameAr;
+  const type = lang === "ar" ? place.typeAr : place.typeEn;
+  const subtype = lang === "ar" ? place.subtypeAr : place.subtypeEn;
+  const governorate = lang === "ar" ? place.governorateAr : place.governorateEn;
 
   return (
     <div className="place-card" onClick={() => onViewDetails(place)}>
       <div className="place-card-header">
         <div>
           <div className="place-name">{name}</div>
-          {secondaryName !== '—' && (
+          {secondaryName !== "—" && (
             <div className="place-name-secondary">{secondaryName}</div>
           )}
         </div>
-        {type !== '—' && (
-          <span className="place-type-badge">{type}</span>
-        )}
+        {type !== "—" && <span className="place-type-badge">{type}</span>}
       </div>
 
       <div className="place-info">
-        {subtype !== '—' && (
+        {subtype !== "—" && (
           <div className="place-info-row">
             <span className="place-info-icon">🏷️</span>
             <span>{subtype}</span>
           </div>
         )}
-        {governorate !== '—' && (
+        {governorate !== "—" && (
           <div className="place-info-row">
             <span className="place-info-icon">📍</span>
             <span>{governorate}</span>
@@ -48,24 +53,32 @@ export default function PlaceCard({ place, onViewDetails, onViewOnMap }: PlaceCa
         {place.block && (
           <div className="place-info-row">
             <span className="place-info-icon">🏘️</span>
-            <span>{t('block')}: {place.block}</span>
+            <span>
+              {t("block")}: {place.block}
+            </span>
           </div>
         )}
       </div>
 
       <div className="place-actions" onClick={(e) => e.stopPropagation()}>
-        <button 
+        <button
+          className={`btn-place-action ${fav ? "primary" : ""}`}
+          onClick={() => toggleFavorite(place.id)}
+        >
+          {fav ? "⭐" : "☆"} {t("favorite")}
+        </button>
+        <button
           className="btn-place-action"
           onClick={() => onViewDetails(place)}
         >
-          📋 {t('viewDetails')}
+          📋 {t("viewDetails")}
         </button>
         {place.latitude && place.longitude && (
-          <button 
+          <button
             className="btn-place-action primary"
             onClick={() => onViewOnMap(place)}
           >
-            🗺️ {t('viewOnMap')}
+            🗺️ {t("viewOnMap")}
           </button>
         )}
       </div>
