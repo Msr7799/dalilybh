@@ -1847,7 +1847,7 @@ button {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  z-index: 150;
+  z-index: 1210;
   width: 56px;
   height: 56px;
   border-radius: 50%;
@@ -1874,7 +1874,7 @@ button {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
-  z-index: 1190;
+  z-index: 150
 }
 
 /* ===== Leaflet Override ===== */
@@ -1928,7 +1928,7 @@ button {
     left: 0;
     top: 0;
     height: 100vh;
-    z-index: 145;
+    z-index: 1200;
     transform: translateX(-100%);
     transition: transform var(--transition-base);
     background: var(--surface-bg);
